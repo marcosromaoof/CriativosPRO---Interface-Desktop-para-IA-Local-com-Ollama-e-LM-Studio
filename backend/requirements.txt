@@ -1,0 +1,6 @@
+aiohttp
+python-socketio
+openai
+edge-tts
+cryptography
+colorama

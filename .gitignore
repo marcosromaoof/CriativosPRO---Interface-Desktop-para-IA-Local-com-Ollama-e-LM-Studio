@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+backend/venv/
+backend/.venv/
+
+# Build Outputs
+dist/
+release/
+build/
+backend/dist/
+backend/build/
+backend/*.spec
+frontend/dist/
+
+# Runtime Data & Cache
+*.log
+backend/__pycache__/
+backend/temp_audio/
+backend/core/__pycache__/
+*/__pycache__/
+*.pyc
+.cache/
+
+# User Data & Security (CRITICAL)
+*.db
+*.bak
+*.tmp
+*.key
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
