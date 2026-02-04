@@ -36,7 +36,7 @@ export function SettingsView({ socket }: SettingsViewProps) {
     const [providers] = useState(['ollama', 'lmstudio']);
     const [selectedProvider, setSelectedProvider] = useState('ollama');
     const [providerModels, setProviderModels] = useState<any[]>([]);
-    const [providerSettings, setProviderSettings] = useState({ api_key: '', base_url: '' });
+    const [providerSettings, setProviderSettings] = useState({ base_url: '' });
     const [syncingProvider, setSyncingProvider] = useState<string | null>(null);
 
     // 1. Listeners GLOBAIS (Não dependem do provedor selecionado)
@@ -374,13 +374,11 @@ function EnginesPanel({
     syncingProvider, onSync, onToggleModel, onToggleProvider,
     onSaveSettings, saveStatus, errorMessage
 }: any) {
-    const isLocal = ['ollama', 'lmstudio'].includes(selectedProvider);
-
     return (
         <div className="max-w-4xl">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold font-outfit mb-2">Motores Cognitivos</h1>
-                <p className="text-white/40 text-sm">Gerencie os modelos de IA disponíveis</p>
+                <p className="text-white/40 text-sm">Gerencie os modelos de IA locais</p>
                 {errorMessage && (
                     <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-bold uppercase tracking-wide flex items-center gap-2">
                         <span>⚠️</span> {errorMessage}
@@ -419,22 +417,12 @@ function EnginesPanel({
                         </div>
 
                         <div className="space-y-4">
-                            {isLocal ? (
-                                <InputField
-                                    label="URL do Servidor"
-                                    value={providerSettings.base_url || ''}
-                                    onChange={(e: any) => setProviderSettings({ ...providerSettings, base_url: e.target.value })}
-                                    placeholder="http://localhost:..."
-                                />
-                            ) : (
-                                <InputField
-                                    label="API Key"
-                                    type="password"
-                                    value={providerSettings.api_key || ''}
-                                    onChange={(e: any) => setProviderSettings({ ...providerSettings, api_key: e.target.value })}
-                                    placeholder="sk-..."
-                                />
-                            )}
+                            <InputField
+                                label="URL do Servidor Local"
+                                value={providerSettings.base_url || ''}
+                                onChange={(e: any) => setProviderSettings({ ...providerSettings, base_url: e.target.value })}
+                                placeholder="http://localhost:..."
+                            />
 
                             <div className="pt-2">
                                 <SaveButton onClick={onSaveSettings} status={saveStatus} />

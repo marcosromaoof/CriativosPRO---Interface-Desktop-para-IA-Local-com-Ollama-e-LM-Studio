@@ -1,9 +1,10 @@
-import importlib
-import os
 from core.providers.base_provider import BaseProvider
+from core.providers.ollama.provider import Provider as OllamaProvider
+from core.providers.lmstudio.provider import Provider as LMStudioProvider
+from core.logger import root_logger as logger
 
 class ProviderManager:
-    """Gerencia a carga e instância de diferentes provedores de IA."""
+    """Gerencia os provedores de IA locais (Ollama e LM Studio)."""
     
     def __init__(self):
         self.providers = {}
@@ -11,31 +12,27 @@ class ProviderManager:
     def get_provider(self, provider_name: str, api_key: str, force_reload: bool = False) -> BaseProvider:
         """
         Retorna uma instância do provedor solicitado.
-        Implementa cache de instâncias para evitar reinicializações desnecessárias.
+        Suporta apenas: ollama, lmstudio
         """
         if not force_reload and provider_name in self.providers:
             return self.providers[provider_name]
 
         try:
-            # Importação dinâmica do módulo do provedor
-            # Espera-se a estrutura: core/providers/{name}/provider.py
-            module_path = f"core.providers.{provider_name}.provider"
-            module = importlib.import_module(module_path)
-            
-            # Busca a classe Provider no módulo importado
-            provider_class = getattr(module, "Provider")
-            
-            if issubclass(provider_class, BaseProvider):
-                instance = provider_class(api_key)
-                self.providers[provider_name] = instance
-                return instance
+            if provider_name == 'ollama':
+                instance = OllamaProvider(api_key)
+            elif provider_name == 'lmstudio':
+                instance = LMStudioProvider(api_key)
             else:
-                raise TypeError(f"A classe Provider em {module_path} não herda de BaseProvider.")
+                logger.warning(f"Provedor '{provider_name}' não suportado.")
+                return None
+            
+            self.providers[provider_name] = instance
+            return instance
 
-        except (ImportError, AttributeError, TypeError) as e:
-            print(f"[ProviderManager] ERRO CRITICO ao carregar provedor '{provider_name}': {e}")
+        except Exception as e:
+            logger.error(f"Erro ao carregar provedor '{provider_name}': {e}")
             import traceback
-            traceback.print_exc() # Isso vai mostrar no console qual modulo exato faltou
+            traceback.print_exc()
             return None
 
 # Instância global

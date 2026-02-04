@@ -21,11 +21,13 @@ backend/core/__pycache__/
 *.pyc
 .cache/
 
-# User Data & Security (CRITICAL)
+# User Data & Security (CRITICAL PURGE)
 *.db
 *.bak
-*.tmp
+*.sqlite
+*.sqlite3
 *.key
+*.tmp
 .env
 .env.local
 

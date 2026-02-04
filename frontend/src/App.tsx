@@ -1,8 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { MessageBubble } from './components/MessageBubble';
 import { TitleBar } from './components/TitleBar';
-import { DashboardView } from './components/DashboardView';
-import { SettingsModal } from './components/SettingsModal';
+import { LoadingSpinner } from './components/LoadingSpinner';
+
+// Lazy Loading para componentes pesados
+const DashboardView = lazy(() => import('./components/DashboardView').then(module => ({ default: module.DashboardView })));
+const SettingsModal = lazy(() => import('./components/SettingsModal').then(module => ({ default: module.SettingsModal })));
 import {
   MessageSquare,
   Settings,
@@ -470,24 +473,33 @@ function App() {
 
         {/* View Switcher */}
         <div className="flex-1 relative overflow-hidden">
+          {/* Conteúdo Principal */}
           {isResetting ? (
             <div className="flex-1 h-full w-full bg-[#050811]" />
-          ) : activeView === 'chat' ? (
-            <ChatView
-              messages={messages}
-              inputValue={inputValue}
-              setInputValue={setInputValue}
-              handleSendMessage={handleSendMessage}
-              handleToggleAudio={handleToggleAudio}
-              handleDeleteMessage={handleDeleteMessage}
-              handleRetryMessage={handleRetryMessage}
-              status={status}
-              selectedModel={selectedModel}
-              playingMessageIndex={playingMessageIndex}
-              loadingAudioIndex={loadingAudioIndex}
-            />
           ) : (
-            <DashboardView socket={socketRef.current} />
+            <>
+              {activeView === 'chat' && (
+                <ChatView
+                  messages={messages}
+                  inputValue={inputValue}
+                  setInputValue={setInputValue}
+                  handleSendMessage={handleSendMessage}
+                  handleToggleAudio={handleToggleAudio}
+                  handleDeleteMessage={handleDeleteMessage}
+                  handleRetryMessage={handleRetryMessage}
+                  status={status}
+                  selectedModel={selectedModel}
+                  playingMessageIndex={playingMessageIndex}
+                  loadingAudioIndex={loadingAudioIndex}
+                />
+              )}
+
+              {activeView === 'dashboard' && (
+                <Suspense fallback={<LoadingSpinner />}>
+                  <DashboardView socket={socketRef.current} />
+                </Suspense>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -518,11 +530,14 @@ function App() {
       )}
 
       {/* Modal de Configurações (Opção A) */}
+      {/* Modal de Configurações (Opção A) */}
       {showSettings && (
-        <SettingsModal
-          socket={socketRef.current}
-          onClose={() => setShowSettings(false)}
-        />
+        <Suspense fallback={<div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center"><LoadingSpinner /></div>}>
+          <SettingsModal
+            socket={socketRef.current}
+            onClose={() => setShowSettings(false)}
+          />
+        </Suspense>
       )}
     </div>
   );
